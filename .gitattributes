@@ -1,0 +1,17 @@
+# Normalize line endings for GitHub / cross-platform clones
+* text=auto eol=lf
+
+# Explicit text types
+*.md text eol=lf
+*.py text eol=lf
+*.sh text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+
+# Binary (if added later)
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.gif binary
+*.mp4 binary
