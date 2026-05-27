@@ -1,0 +1,15 @@
+# ecomm-video-allinone — Python dependencies
+#
+# Install: pip install -r requirements.txt
+#
+# Coverage by script group:
+#   scripts/video-analysis/main.py  → requests, yt-dlp (this file)
+#   scripts/image/*                 → stdlib only (urllib, json, base64, …)
+#   scripts/video/*                 → stdlib only (urllib, json, …)
+#
+# Optional system binaries (not installed via pip):
+#   curl — Douyin page fetch & fallback video download (video-analysis)
+#          Falls back to requests when curl is unavailable.
+
+requests>=2.31.0
+yt-dlp>=2025.11.12

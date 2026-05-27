@@ -1,10 +1,10 @@
 ---
 name: ecomm-video-allinone
 slug: ecomm-video-allinone
-version: 1.2.1
+version: 1.3.0
 displayName: DeskClaw 电商视频全能独立版
-summary: 以单技能方式提供完整视频流水线；主 SKILL 负责总流程与执行规范，细分能力通过 7 个 SUB_SKILL 文档引导。
-tags: deskclaw, video-pipeline, standalone, e-commerce, image-generation, video-generation
+summary: 以单技能方式提供完整视频流水线；主 SKILL 负责总流程与执行规范，细分能力通过 8 个 SUB_SKILL 文档引导。
+tags: deskclaw, video-pipeline, standalone, e-commerce, image-generation, video-generation, video-analysis
 description: "DeskClaw 电商视频全能独立版：单技能安装即可使用。主 SKILL 负责编排和执行，细节规则请按 SUB_SKILL 文档分层查阅。"
 license: Apache-2.0
 compatibility:
@@ -32,12 +32,26 @@ metadata:
 
 # DeskClaw 电商视频全能独立版
 
-从脚本或产品信息一键生成完整视频资产包。这是单技能独立版编排器，端到端流程仅依赖本目录文档与脚本。
+从脚本、参考视频或产品信息一键生成完整视频资产包。这是单技能独立版编排器，端到端流程仅依赖本目录文档与脚本。
+
+## ONBOARDING — 三种使用方式
+
+首次使用请先判断入口；详细说明见 `docs/ONBOARDING.md`。
+
+| 方式 | 你提供什么 | 第一步 | 后续 |
+|---|---|---|---|
+| **1. 直接输入脚本** | 已定稿脚本文本 | 进入 Step 0–5 | 输出宫格 + 视频提示词资产包 |
+| **2. 参考视频拆解** | 视频附件 / 抖音链接 | `video-analysis` 拆解出 `script_text` | `script_text` → Step 0–5 |
+| **3. 产品图生成脚本** | 产品图 + 名称 + 卖点 | 自动生成脚本 | 进入 Step 0–5 |
 
 ## 文档结构
 
 - 主入口（当前文件）：
   - `SKILL.md`：总流程、执行规范、路由规则
+- 新用户引导：
+  - `docs/ONBOARDING.md`：三种使用方式说明
+- 版本记录：
+  - `CHANGELOG.md`：版本更新记录
 - 子能力文档：
   - `docs/SUB_SKILLS_INDEX.md`
   - `docs/sub_skills/script-analysis.md`
@@ -47,9 +61,15 @@ metadata:
   - `docs/sub_skills/long-video.md`
   - `docs/sub_skills/image-generation.md`
   - `docs/sub_skills/video-generation.md`
+  - `docs/sub_skills/video-analysis.md`
 - 可执行脚本：
   - `scripts/image/*`
   - `scripts/video/*`
+  - `scripts/video-analysis/*`
+- Python 依赖：`requirements.txt`
+  - pip：`requests`、`yt-dlp`（仅 `scripts/video-analysis/*`）
+  - 标准库即可：`scripts/image/*`、`scripts/video/*`
+  - 系统可选：`curl`（抖音抓取回退，非 pip 安装）
 
 
 ## SUB_SKILL 说明
@@ -60,6 +80,7 @@ metadata:
 
 | SUB_SKILL | 职责 | 本 Skill 中的阶段 |
 |---|---|---|
+| `video-analysis` | 分析已有视频并拆解输出脚本 | 入口（按需） |
 | `script-analysis` | 脚本拆解为结构化单元/分镜 | Step 1 |
 | `grid-prompt` | 生成宫格生图指令 | Step 3 |
 | `video-prompt` | 生成逐秒视频描述 | Step 4 |
@@ -70,10 +91,36 @@ metadata:
 
 | 执行模块 | 职责 | 消费的输出字段 |
 |---|---|---|
+| `scripts/video-analysis/*` | 上传/拆解参考视频，输出脚本 | 视频文件 / 抖音链接 |
 | `scripts/image/*` | 生成宫格图 | `image_gen_input` JSON |
 | `scripts/video/*` | 生成视频 | `video_gen_input` JSON |
 
 ## 输入
+
+### 有视频模式（参考视频 → 脚本）
+
+用户提供参考视频、抖音链接或已上传 `video_id`，先拆解出脚本再进入完整流程。
+
+```json
+{
+  "video_input": {
+    "file_path": "media/ref.mp4",
+    "douyin_url": "https://v.douyin.com/xxxx/",
+    "video_id": "video_xxx",
+    "original_script": true
+  }
+}
+```
+
+| 字段 | 说明 |
+|---|---|
+| `file_path` | 本地视频；消息中 `media/...mp4` 自动补全 |
+| `douyin_url` | 抖音链接，先抓取再下载上传 |
+| `video_id` | DeskClaw 已上传视频，优先接入 |
+| `original_script` | `true` 时只输出原视频脚本，不仿写 |
+| `rewrite_brief` | 用户明确要求仿写时传入 |
+
+执行：`docs/sub_skills/video-analysis.md` → 得到 `script_text` → 作为 `raw_script_text` 进入 Step 0–5。
 
 ### 有脚本模式（主要）
 
@@ -118,7 +165,11 @@ metadata:
 ## 全流程
 
 ```
-完整脚本 / 产品信息
+完整脚本 / 产品信息 / 参考视频
+  │
+  ▼ 入口（按需）: 参考视频拆解
+  │         → 参考 docs/sub_skills/video-analysis.md
+  │         → 输出 script_text，作为 raw_script_text 进入下游
   │
   ▼ Step 0: 判断是否需要长视频编排（>15s → 拆单元）
   │
@@ -254,6 +305,9 @@ metadata:
 | "脚本太长，超过 15 秒" | 拆单元，每单元独立出资产包 |
 | "只要生图指令，不要视频描述" | 只输出 image_gen_input |
 | "我有产品图，没有脚本" | 先生成脚本，再走全流程 |
+| "分析这个视频/抖音链接" | 走 video-analysis，输出 script_text |
+| "仿写这个参考视频" | video-analysis 拆解 + rewrite_brief 仿写 |
+| "拆解完继续生成新视频" | script_text → raw_script_text → 完整资产包流程 |
 
 ## 下游执行
 
