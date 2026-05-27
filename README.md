@@ -3,7 +3,9 @@
 `ecomm-video-allinone` 是一个可独立发布的电商视频生产技能。  
 安装这一个目录，即可完成从参考视频拆解、脚本拆解、宫格生图、视频提示词到最终图片/视频下载的完整流程。
 
-**平台说明：** 本技能**目前仅支持在 DeskClaw 中安装与使用**（含技能安装入口、账号与工作区、NodeStudio 网关等）。文档标注兼容 Claude Code / Cursor 阅读编排规则，但安装与运行仍以 DeskClaw 为准。
+**平台说明：** 本技能**目前仅支持在 DeskClaw 中安装与使用**（含技能安装入口、账号与工作区、NodeStudio 网关等）。
+
+【AI电商视频生产线装进你的桌面 | DeskClaw】 https://www.bilibili.com/video/BV1kzR9BoEYc/?share_source=copy_web&vd_source=af61a32006f49a552b0e5e71d4d0b6b3
 
 ## 关于 DeskClaw
 
